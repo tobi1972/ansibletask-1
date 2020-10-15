@@ -1,0 +1,52 @@
+- hosts: web
+  tasks:
+  - name: Install Apache
+    yum:
+      name: httpd
+      state: latest
+
+  - name: Start httpd
+    systemd:
+      name: httpd
+      state: started
+
+  - name: Enable httpd
+    systemd:
+      name: httpd
+      enabled: yes
+      masked: no
+
+- hosts: web
+  tasks:
+  - name: Download Templates
+    get_url:
+      url: https://www.free-css.com/assets/files/free-css-templates/download/page253/estateagency.zip
+      dest: "/home/centos/"
+
+- hosts: web
+  tasks:
+  - name: Install unzip
+    yum:
+      name: unzip
+      state: latest
+
+  - name: unzip
+    unarchive:
+      src: https://www.free-css.com/assets/files/free-css-templates/download/page253/estateagency.zip
+      dest: "/home/centos/"
+      remote_src: yes
+
+- hosts: web
+  tasks:
+  - name: copy file
+    shell: "rsync -r /home/centos/EstateAgency/*   /var/www/html"
+- hosts: web
+  tasks:
+  - name: change uid and gid
+    shell: "chown -R apache:apache /var/www/html"
+
+
+- hosts: web
+  tasks:
+  - selinux:
+      state: disabled
